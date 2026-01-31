@@ -22,7 +22,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .help()
     .argv;
 
-const payload = { id: '', name: 'cncjs-pendant-gamepad-redux' };
+const payload = { id: '', name: 'cncjs-pendant' };
 
 //generateAccessToken({ id: '', name: 'cncjs-pendant-gamepad-redux' }, this.options.secret, this.options.accessTokenLifetime);
 
