@@ -19,6 +19,8 @@ console.log("Listening for Buttons and Axes...");
 
 device.on("data", (data) => {
     // --- 1. BUTTON LOGIC (Byte 3 based on your previous test) ---
+    console.log("Raw Data:", data);
+    
     const currentButtonValue = data[3]; 
     if (currentButtonValue !== lastButtonValue) {
         if (currentButtonValue !== 0) {
