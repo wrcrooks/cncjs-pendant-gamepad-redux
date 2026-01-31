@@ -102,7 +102,9 @@ function processAxisEvent(axisName, currentState, stateKey) {
     if (currentState !== lastAxisState[stateKey]) {
         const axisConfig = buttonMapping.axis_mappings[axisName];
         if (currentState !== "neutral" && axisConfig && axisConfig[currentState]) {
-            console.log(`>>> ${axisConfig[currentState]}`);
+            const axesState = axisConfig[currentState];
+            const action = actionMapping.mappings[axesState];
+            console.log(`>>> ${axesState} : ${action}`);
         }
         lastAxisState[stateKey] = currentState;
     }
