@@ -37,19 +37,18 @@ device.on("data", (data) => {
     handleAxis('dpad_x', data[7], 'dx');
     handleAxis('dpad_y', data[8], 'dy');
 
-    // --- 2. BUTTON LOGIC ---
+    // --- 3. BUTTON LOGIC ---
     let combinedButtons = data[5] | (data[6] << 8);
-    let normalizedButtons = (combinedButtons - IDLE_OFFSET) >> 4;
+    // Clearing the idle offset (8) and shifting to align Square to 0
+    let normalizedButtons = (combinedButtons - 8) >> 4;
 
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
-
         if (isPressed && !buttonStates[i]) {
             const msg = config.mappings[i.toString()];
             if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
             buttonStates[i] = true;
-        } 
-        else if (!isPressed && buttonStates[i]) {
+        } else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;
         }
     }
