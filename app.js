@@ -26,15 +26,16 @@ const IDLE_OFFSET = 8;
 console.log(`Mapping ${controllerInfo.product} indices...`);
 
 device.on("data", (data) => {
-    // --- 1. AXIS LOGIC ---
-    
-    // Left Joystick (likely bytes 1 and 2)
-    handleAxis('left_stick_x', data[1], 'lx');
-    handleAxis('left_stick_y', data[2], 'ly');
-
-    // Right Joystick (the ones you confirmed working on 3 and 4)
+    // --- 1. AXIS LOGIC (Joysticks) ---
+    handleAxis('left_stick_x',  data[1], 'lx');
+    handleAxis('left_stick_y',  data[2], 'ly');
     handleAxis('right_stick_x', data[3], 'rx');
     handleAxis('right_stick_y', data[4], 'ry');
+
+    // --- 2. D-PAD LOGIC (Axes 4 & 5) ---
+    // data[7] and data[8] correspond to the indices 7 and 8 in the buffer
+    handleAxis('dpad_x', data[7], 'dx');
+    handleAxis('dpad_y', data[8], 'dy');
 
     // --- 2. BUTTON LOGIC ---
     let combinedButtons = data[5] | (data[6] << 8);
@@ -54,18 +55,19 @@ device.on("data", (data) => {
     }
 });
 
-// Updated helper to track multiple sticks independently
+// We ensure stateKey is unique for every axis to prevent "crosstalk"
 function handleAxis(axisName, value, stateKey) {
     let currentState = "neutral";
+    
+    // Logic: Up/Left are low (near 0), Down/Right are high (near 255)
     if (value < (CENTER - DEADZONE)) currentState = "low";
     else if (value > (CENTER + DEADZONE)) currentState = "high";
 
     if (currentState !== lastAxisState[stateKey]) {
-        // Look for mapping in config.axis_mappings
         const axisConfig = config.axis_mappings[axisName];
         if (currentState !== "neutral" && axisConfig) {
             const msg = axisConfig[currentState];
-            if (msg) console.log(`>>> AXIS ${axisName}: ${msg}`);
+            if (msg) console.log(`>>> ${msg}`);
         }
         lastAxisState[stateKey] = currentState;
     }

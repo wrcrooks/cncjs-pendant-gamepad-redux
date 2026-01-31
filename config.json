@@ -1,9 +1,9 @@
 {
   "mappings": {
-    "0": "Square / X Button Pressed",
-    "1": "X / A Button Pressed",
-    "2": "Circle / B Button Pressed",
-    "3": "Triangle / Y Button Pressed",
+    "0": "X",
+    "1": "A",
+    "2": "B",
+    "3": "Y",
     "4": "L1",
     "5": "R1",
     "6": "L2",
@@ -17,6 +17,8 @@
     "left_stick_x": { "low": "L-Stick Left", "high": "L-Stick Right" },
     "left_stick_y": { "low": "L-Stick Up", "high": "L-Stick Down" },
     "right_stick_x": { "low": "R-Stick Left", "high": "R-Stick Right" },
-    "right_stick_y": { "low": "R-Stick Up", "high": "R-Stick Down" }
+    "right_stick_y": { "low": "R-Stick Up", "high": "R-Stick Down" },
+    "dpad_x": { "low": "D-Pad Left", "high": "D-Pad Right" },
+    "dpad_y": { "low": "D-Pad Up", "high": "D-Pad Down" }
   }
 }
