@@ -149,6 +149,7 @@ process.on('SIGINT', () => {
 // -------------------------------
 
 socket.on('connect', () => {
+    console.log("HERE");
     console.log(`Connected to ${argv.url}`);
     socket.emit('open', argv.port, {
           baudrate: 115200,
