@@ -1,5 +1,23 @@
 const HID = require('node-hid');
 const fs = require('fs');
+const io = require('socket.io-client');
+
+const argv = require('yargs/yargs')(process.argv.slice(2))
+    .option('url', {
+        alias: 'u',
+        description: 'CNCjs Server URL',
+        default: 'http://localhost:80'
+    })
+    .option('port', {
+        alias: 'p',
+        description: 'Serial Port (e.g., /dev/ttyUSB0 or COM3)',
+        default: '/dev/ttyACM0',
+        demandOption: true
+    })
+    .help()
+    .argv;
+
+const socket = io(argv.url);
 
 // 1. Load Mappings
 const buttonMapping = JSON.parse(fs.readFileSync('ButtonMapping.json', 'utf8'));
@@ -12,6 +30,15 @@ let lastAxisState = { lx: "neutral", ly: "neutral", rx: "neutral", ry: "neutral"
 
 const DEADZONE = 50;
 const CENTER = 128;
+
+// socket.on('connect', () => {
+//     console.log(`Connected to ${serverAddr}`);
+//     socket.emit('write', serialPort, '$H\n');
+//     console.log(`Homing command sent to ${serialPort}`);
+    
+//     // Graceful exit after sending
+//     setTimeout(() => process.exit(0), 1000);
+// });
 
 /**
  * Main function to find and connect to the controller
@@ -69,7 +96,14 @@ function handleData(data) {
         if (isPressed && !buttonStates[i]) {
             const button = buttonMapping.mappings[i.toString()];
             const action = actionMapping.mappings[button];
-            if (button) console.log(`>>> ${button} : ${action}`);
+            if (button) {
+                console.log(`>>> ${button} : ${action}`);
+                switch (action) {
+                    case "performHoming":
+                        socket.emit('write', argv.port, '$H\n');
+                        break;
+                }
+            }
             buttonStates[i] = true;
         } else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;

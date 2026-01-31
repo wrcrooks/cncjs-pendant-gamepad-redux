@@ -4,7 +4,9 @@
   "description": "Use a Videogame Controller as a CNCjs Pendant - Redux",
   "main": "app.js",
   "dependencies": {
-    "node-hid": "^3.2.0"
+    "node-hid": "^3.2.0",
+    "socket.io-client": "^4.8.3",
+    "yargs": "^18.0.0"
   },
   "author": "wrcrooks",
   "license": "MIT",
