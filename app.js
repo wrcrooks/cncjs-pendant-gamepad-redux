@@ -69,7 +69,7 @@ function handleData(data) {
         if (isPressed && !buttonStates[i]) {
             const button = buttonMapping.mappings[i.toString()];
             const action = actionMapping.mappings[button];
-            if (msg) console.log(`>>> ${button} : ${action}`);
+            if (button) console.log(`>>> ${button} : ${action}`);
             buttonStates[i] = true;
         } else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;
