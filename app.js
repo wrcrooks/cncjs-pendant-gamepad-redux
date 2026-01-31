@@ -149,8 +149,11 @@ process.on('SIGINT', () => {
 // -------------------------------
 
 socket.on('connect', () => {
-    console.log(`Connected to ${serverAddr}`);
-    
+    console.log(`Connected to ${argv.url}`);
+    socket.emit('open', argv.port, {
+          baudrate: 115200,
+          controllerType: 'grbl'
+      });
     // Start the initial connection attempt
     connect();
 });
