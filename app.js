@@ -32,7 +32,7 @@ const token = jwt.sign(payload, argv.secret, { expiresIn: '30d' });
 console.log(`Generated Token: ${token}`);
 
 const socket = io(argv.url, {
-    query: { token: token }
+    query: { token: `token=${token}` }
 });
 
 // 1. Load Mappings
