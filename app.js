@@ -17,6 +17,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .help()
     .argv;
 
+console.log(`>>> URL : ${argv.url}`);
 const socket = io(argv.url);
 
 // 1. Load Mappings
