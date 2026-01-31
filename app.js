@@ -26,29 +26,40 @@ const IDLE_OFFSET = 8;
 console.log(`Mapping ${controllerInfo.product} indices...`);
 
 device.on("data", (data) => {
-    // --- 1. AXIS LOGIC (Joysticks) ---
+    // --- 1. JOYSICK AXES (1-4) ---
     handleAxis('left_stick_x',  data[1], 'lx');
     handleAxis('left_stick_y',  data[2], 'ly');
     handleAxis('right_stick_x', data[3], 'rx');
     handleAxis('right_stick_y', data[4], 'ry');
 
-    // --- 2. D-PAD LOGIC (Axes 4 & 5) ---
-    // data[7] and data[8] correspond to the indices 7 and 8 in the buffer
+    // --- 2. D-PAD AXES (7-8) ---
     handleAxis('dpad_x', data[7], 'dx');
     handleAxis('dpad_y', data[8], 'dy');
 
-    // --- 3. BUTTON LOGIC ---
-    let combinedButtons = data[5] | (data[6] << 8);
-    // Clearing the idle offset (8) and shifting to align Square to 0
-    let normalizedButtons = (combinedButtons - 8) >> 4;
+    // --- 3. BUTTON LOGIC (Fixed Masking) ---
+    
+    // Combine data[5] and data[6]
+    let rawValue = data[5] | (data[6] << 8);
+
+    /**
+     * THE FIX:
+     * 0xFFF0 is a mask that looks like 1111111111110000 in binary.
+     * It keeps all the button bits but turns the D-Pad bits (0-3) into zeros.
+     */
+    let buttonsOnly = (rawValue & 0xFFF0); 
+    
+    // Now shift right by 4 so Button 4 (Square) becomes Index 0
+    let normalizedButtons = buttonsOnly >> 4;
 
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
+
         if (isPressed && !buttonStates[i]) {
             const msg = config.mappings[i.toString()];
             if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
             buttonStates[i] = true;
-        } else if (!isPressed && buttonStates[i]) {
+        } 
+        else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;
         }
     }
