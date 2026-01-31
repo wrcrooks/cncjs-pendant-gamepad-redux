@@ -1,8 +1,8 @@
 {
   "mappings": {
-    "0": "Jump!",
-    "1": "Action: Interaction Triggered",
-    "2": "Reloading...",
-    "3": "Special Ability Activated"
+    "1": "X / A Button Pressed",
+    "2": "Circle / B Button Pressed",
+    "4": "Square / X Button Pressed",
+    "8": "Triangle / Y Button Pressed"
   }
 }
