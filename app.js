@@ -19,13 +19,21 @@ console.log("Listening for Buttons and Axes...");
 
 device.on("data", (data) => {
     // --- 1. BUTTON LOGIC (Byte 3 based on your previous test) ---
-    const currentButtonValue = data[3]; 
-    if (currentButtonValue !== lastButtonValue) {
-        if (currentButtonValue !== 0) {
-            const msg = config.mappings[currentButtonValue.toString()];
-            if (msg) console.log(`>>> ${msg}`);
-        }
-        lastButtonValue = currentButtonValue;
+    /**
+     * RAW DATA EXPLAINED:
+     * 'data' is a Buffer (array of bytes).
+     * When you press a button, one of these bytes changes.
+     */
+    
+    // For most controllers, buttons start around byte 3 or 5
+    // Let's check byte 3 for this example:
+    const buttonByte = data[3]; 
+
+    if (config.mappings[buttonByte]) {
+        console.log(`Action: ${config.mappings[buttonByte]}`);
+    } else if (buttonByte !== 0) {
+        // This helps you find the ID to put in your JSON
+        console.log(`Unknown button pressed. Byte 3 value is: ${buttonByte}`);
     }
 
     // --- 2. AXIS LOGIC (Example: Left Stick X = Byte 0, Y = Byte 1) ---
