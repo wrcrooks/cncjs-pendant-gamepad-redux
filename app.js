@@ -6,7 +6,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .option('url', {
         alias: 'u',
         description: 'CNCjs Server URL',
-        default: 'http://localhost'
+        default: 'http://localhost:8000'
     })
     .option('port', {
         alias: 'p',
@@ -30,13 +30,6 @@ let lastAxisState = { lx: "neutral", ly: "neutral", rx: "neutral", ry: "neutral"
 
 const DEADZONE = 50;
 const CENTER = 128;
-
-socket.on('connect', () => {
-    console.log(`Connected to ${serverAddr}`);
-    
-    // Start the initial connection attempt
-    connect();
-});
 
 /**
  * Main function to find and connect to the controller
@@ -154,3 +147,10 @@ process.on('SIGINT', () => {
     process.exit(0); // Manually exit the process
 });
 // -------------------------------
+
+socket.on('connect', () => {
+    console.log(`Connected to ${serverAddr}`);
+    
+    // Start the initial connection attempt
+    connect();
+});
