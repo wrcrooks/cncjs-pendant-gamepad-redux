@@ -1,43 +1,51 @@
 const HID = require('node-hid');
 const fs = require('fs');
 
+// 1. Load Config
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+
+// 2. Setup Device
 const devices = HID.devices();
 const controllerInfo = devices.find(d => d.vendorId === 1133 || d.vendorId === 1356);
 
 if (!controllerInfo) {
-    console.log("Controller not found.");
+    console.log("No controller found.");
     process.exit();
 }
 
 const device = new HID.HID(controllerInfo.path);
 
+// State tracking
 let buttonStates = {}; 
 let lastAxisState = { x: "neutral", y: "neutral" };
 
 const DEADZONE = 50;
 const CENTER = 128;
-const IDLE_OFFSET = 8; // Your controller's base value for data[5]
+const IDLE_OFFSET = 8; 
 
-console.log(`Connected to ${controllerInfo.product}. Ready!`);
+console.log(`Mapping ${controllerInfo.product} indices...`);
 
 device.on("data", (data) => {
-    // --- 1. AXIS LOGIC (Bytes 3 and 4) ---
+    // --- AXIS LOGIC ---
     handleAxis('left_stick_x', data[3], 'x');
     handleAxis('left_stick_y', data[4], 'y');
 
-    // --- 2. BUTTON LOGIC (Normalized to 0-11) ---
-    // Subtract the idle offset so 'no buttons' equals 0
-    const buttonByte = data[5] - IDLE_OFFSET;
+    // --- BUTTON LOGIC WITH SHIFTING ---
+    // 1. Remove the D-Pad idle value (8)
+    // 2. Shift Right by 4 (>> 4) to move bit 4 into the 0 position
+    const normalizedButtons = (data[5] - IDLE_OFFSET) >> 4;
 
-    // Check bits 0 through 11 (covers all buttons in your JSON)
     for (let i = 0; i <= 11; i++) {
-        // Check if the i-th bit is set
-        const isPressed = (buttonByte & (1 << i)) !== 0;
+        // Check if the i-th bit is set after the shift
+        const isPressed = (normalizedButtons & (1 << i)) !== 0;
 
         if (isPressed && !buttonStates[i]) {
             const msg = config.mappings[i.toString()];
-            if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
+            if (msg) {
+                console.log(`>>> BUTTON ${i}: ${msg}`);
+            } else {
+                console.log(`>>> BUTTON ${i} pressed (No mapping in JSON)`);
+            }
             buttonStates[i] = true;
         } 
         else if (!isPressed && buttonStates[i]) {
