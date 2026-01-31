@@ -88,7 +88,38 @@ function handleData(data) {
     }
 }
 
-// ... include handleHatSwitch, handleAxis, and processAxisEvent functions from previous response ...
+function handleHatSwitch(value) {
+    // Standard HID Hat Switch: 0=Up, 2=Right, 4=Down, 6=Left, 8=Neutral
+    let stateX = "neutral";
+    let stateY = "neutral";
+
+    if (value === 0 || value === 1 || value === 7) stateY = "low";
+    if (value === 3 || value === 4 || value === 5) stateY = "high";
+    if (value === 5 || value === 6 || value === 7) stateX = "low";
+    if (value === 1 || value === 2 || value === 3) stateX = "high";
+
+    processAxisEvent('dpad_x', stateX, 'dx');
+    processAxisEvent('dpad_y', stateY, 'dy');
+}
+
+function handleAxis(axisName, value, stateKey) {
+    let currentState = "neutral";
+    if (value < (CENTER - DEADZONE)) currentState = "low";
+    else if (value > (CENTER + DEADZONE)) currentState = "high";
+    processAxisEvent(axisName, currentState, stateKey);
+}
+
+function processAxisEvent(axisName, currentState, stateKey) {
+    if (currentState !== lastAxisState[stateKey]) {
+        const axisConfig = config.axis_mappings[axisName];
+        if (currentState !== "neutral" && axisConfig && axisConfig[currentState]) {
+            console.log(`>>> ${axisConfig[currentState]}`);
+        }
+        lastAxisState[stateKey] = currentState;
+    }
+}
+
+device.on("error", (err) => console.error("HID Error:", err));
 
 // Start the initial connection attempt
 connect();
