@@ -34,8 +34,8 @@ const CENTER = 128;
 socket.on('connect', () => {
     console.log(`Connected to ${serverAddr}`);
     
-    // Graceful exit after sending
-    setTimeout(() => process.exit(0), 1000);
+    // Start the initial connection attempt
+    connect();
 });
 
 /**
@@ -154,6 +154,3 @@ process.on('SIGINT', () => {
     process.exit(0); // Manually exit the process
 });
 // -------------------------------
-
-// Start the initial connection attempt
-connect();
