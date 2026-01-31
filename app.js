@@ -31,14 +31,12 @@ let lastAxisState = { lx: "neutral", ly: "neutral", rx: "neutral", ry: "neutral"
 const DEADZONE = 50;
 const CENTER = 128;
 
-// socket.on('connect', () => {
-//     console.log(`Connected to ${serverAddr}`);
-//     socket.emit('write', serialPort, '$H\n');
-//     console.log(`Homing command sent to ${serialPort}`);
+socket.on('connect', () => {
+    console.log(`Connected to ${serverAddr}`);
     
-//     // Graceful exit after sending
-//     setTimeout(() => process.exit(0), 1000);
-// });
+    // Graceful exit after sending
+    setTimeout(() => process.exit(0), 1000);
+});
 
 /**
  * Main function to find and connect to the controller
@@ -143,6 +141,19 @@ function processAxisEvent(axisName, currentState, stateKey) {
         lastAxisState[stateKey] = currentState;
     }
 }
+
+// --- Graceful Shutdown Logic ---
+process.on('SIGINT', () => {
+    console.log('\nGracefully shutting down...');
+    
+    if (socket.connected) {
+        socket.disconnect();
+        console.log('Socket disconnected.');
+    }
+    
+    process.exit(0); // Manually exit the process
+});
+// -------------------------------
 
 // Start the initial connection attempt
 connect();
