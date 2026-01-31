@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Use a Videogame Controller as a CNCjs Pendant - Redux",
   "main": "app.js",
-  "scripts": {
-    "start": "node app.js",
-    "install": "node-gyp rebuild"
-  },
   "dependencies": {
     "node-hid": "^3.2.0"
   },
