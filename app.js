@@ -67,8 +67,9 @@ function handleData(data) {
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
         if (isPressed && !buttonStates[i]) {
-            const msg = buttonMapping.mappings[i.toString()];
-            if (msg) console.log(`>>> ${msg}`);
+            const button = buttonMapping.mappings[i.toString()];
+            const action = actionMapping.mappings[button];
+            if (msg) console.log(`>>> ${button} : ${action}`);
             buttonStates[i] = true;
         } else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;
