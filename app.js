@@ -18,7 +18,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .argv;
 
 console.log(`>>> URL : ${argv.url}`);
-const socket = io(argv.url);
+const socket = io.connect(argv.url);
 
 // 1. Load Mappings
 const buttonMapping = JSON.parse(fs.readFileSync('ButtonMapping.json', 'utf8'));
