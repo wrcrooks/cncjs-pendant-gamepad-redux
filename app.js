@@ -5,47 +5,52 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const devices = HID.devices();
 const controllerInfo = devices.find(d => d.vendorId === 1133 || d.vendorId === 1356);
 
-if (!controllerInfo) { process.exit(); }
+if (!controllerInfo) {
+    console.log("Controller not found.");
+    process.exit();
+}
+
 const device = new HID.HID(controllerInfo.path);
 
-// State tracking
-let lastButtonValue = 0;
+let buttonStates = {}; 
 let lastAxisState = { x: "neutral", y: "neutral" };
 
-const DEADZONE = 50; // Ignore small movements near the center (128)
+const DEADZONE = 50;
 const CENTER = 128;
+const IDLE_OFFSET = 8; // Your controller's base value for data[5]
 
-console.log("Listening for Buttons and Axes...");
+console.log(`Connected to ${controllerInfo.product}. Ready!`);
 
 device.on("data", (data) => {
-    // --- 1. BUTTON LOGIC (Byte 3 based on your previous test) ---
-    console.log("Raw Data:", data);
-    
-    const currentButtonValue = data[3]; 
-    if (currentButtonValue !== lastButtonValue) {
-        if (currentButtonValue !== 0) {
-            const msg = config.mappings[currentButtonValue.toString()];
-            if (msg) console.log(`>>> ${msg}`);
+    // --- 1. AXIS LOGIC (Bytes 3 and 4) ---
+    handleAxis('left_stick_x', data[3], 'x');
+    handleAxis('left_stick_y', data[4], 'y');
+
+    // --- 2. BUTTON LOGIC (Normalized to 0-11) ---
+    // Subtract the idle offset so 'no buttons' equals 0
+    const buttonByte = data[5] - IDLE_OFFSET;
+
+    // Check bits 0 through 11 (covers all buttons in your JSON)
+    for (let i = 0; i <= 11; i++) {
+        // Check if the i-th bit is set
+        const isPressed = (buttonByte & (1 << i)) !== 0;
+
+        if (isPressed && !buttonStates[i]) {
+            const msg = config.mappings[i.toString()];
+            if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
+            buttonStates[i] = true;
+        } 
+        else if (!isPressed && buttonStates[i]) {
+            buttonStates[i] = false;
         }
-        lastButtonValue = currentButtonValue;
     }
-
-    // --- 2. AXIS LOGIC (Example: Left Stick X = Byte 0, Y = Byte 1) ---
-    // Note: You might need to experiment to see which byte is which stick!
-    const rawX = data[0];
-    const rawY = data[1];
-
-    handleAxis('left_stick_x', rawX, 'x');
-    handleAxis('left_stick_y', rawY, 'y');
 });
 
 function handleAxis(axisName, value, stateKey) {
     let currentState = "neutral";
-
     if (value < (CENTER - DEADZONE)) currentState = "low";
     else if (value > (CENTER + DEADZONE)) currentState = "high";
 
-    // Only trigger on state change (e.g., neutral -> high)
     if (currentState !== lastAxisState[stateKey]) {
         if (currentState !== "neutral") {
             const msg = config.axis_mappings[axisName][currentState];
