@@ -13,28 +13,31 @@ const DEADZONE = 50;
 const CENTER = 128;
 
 function vibrate(hidDevice) {
-    console.log("Attempting F710 rumble...");
+    console.log("Sending connection rumble...");
 
-    /**
-     * F710 DirectInput Rumble Packet
-     * Byte 0: Report ID (usually 0x00 or 0x01)
-     * Byte 1: 0x01 (Enable motors)
-     * Byte 2: Left motor strength (0-255)
-     * Byte 3: Right motor strength (0-255)
-     * Byte 4: Duration (0-255)
-     */
-    const logitechReport = [0x00, 0x01, 0xff, 0xff, 0x14]; 
+    // The DualShock 3 vibration packet (standard HID output report)
+    // Byte 3 is the right (small) motor (0 or 1)
+    // Byte 5 is the left (large) motor (0 to 255)
+    const report = Buffer.alloc(32);
+    report[0] = 0x01; // Report ID
+    report[2] = 0x00;
+    report[3] = 0x01; // Small motor on
+    report[4] = 0x00;
+    report[5] = 0xff; // Large motor at max power
+    report[6] = 0x00;
     
     try {
-        // Some systems require the Report ID as the first element of a Buffer
-        hidDevice.write(Buffer.from(logitechReport));
+        // Send the rumble
+        hidDevice.write(report);
 
-        // Stop vibration after 500ms
+        // Turn it off after 500ms
         setTimeout(() => {
-            hidDevice.write(Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00]));
+            const stopReport = Buffer.alloc(32);
+            stopReport[0] = 0x01;
+            hidDevice.write(stopReport);
         }, 500);
     } catch (err) {
-        console.log("Rumble command failed. This device may require XInput mode for vibration.");
+        console.log("Vibration not supported on this specific device/mode.");
     }
 }
 
