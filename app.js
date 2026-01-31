@@ -26,44 +26,58 @@ const IDLE_OFFSET = 8;
 console.log(`Mapping ${controllerInfo.product} indices...`);
 
 device.on("data", (data) => {
-    // --- 1. JOYSICK AXES (1-4) ---
+    // 1. JOYSICK AXES
     handleAxis('left_stick_x',  data[1], 'lx');
     handleAxis('left_stick_y',  data[2], 'ly');
     handleAxis('right_stick_x', data[3], 'rx');
     handleAxis('right_stick_y', data[4], 'ry');
 
-    // --- 2. D-PAD AXES (7-8) ---
-    handleAxis('dpad_x', data[7], 'dx');
-    handleAxis('dpad_y', data[8], 'dy');
+    // 2. D-PAD / HAT SWITCH LOGIC
+    // Most controllers put the Hat Switch in the lower 4 bits of data[5]
+    const hatValue = data[5] & 0x0F; 
+    handleHatSwitch(hatValue);
 
-    // --- 3. BUTTON LOGIC (Fixed Masking) ---
-    
-    // Combine data[5] and data[6]
-    let rawValue = data[5] | (data[6] << 8);
-
-    /**
-     * THE FIX:
-     * 0xFFF0 is a mask that looks like 1111111111110000 in binary.
-     * It keeps all the button bits but turns the D-Pad bits (0-3) into zeros.
-     */
-    let buttonsOnly = (rawValue & 0xFFF0); 
-    
-    // Now shift right by 4 so Button 4 (Square) becomes Index 0
-    let normalizedButtons = buttonsOnly >> 4;
+    // 3. BUTTON LOGIC
+    // We mask out the Hat Switch (0x0F) and keep the buttons
+    let rawButtons = (data[5] & 0xF0) | (data[6] << 8);
+    let normalizedButtons = rawButtons >> 4;
 
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
-
         if (isPressed && !buttonStates[i]) {
             const msg = config.mappings[i.toString()];
             if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
             buttonStates[i] = true;
-        } 
-        else if (!isPressed && buttonStates[i]) {
+        } else if (!isPressed && buttonStates[i]) {
             buttonStates[i] = false;
         }
     }
 });
+
+function handleHatSwitch(value) {
+    // 0=Up, 1=UpRight, 2=Right, 3=DownRight, 4=Down, 5=DownLeft, 6=Left, 7=UpLeft, 8=Neutral
+    let stateX = "neutral";
+    let stateY = "neutral";
+
+    if (value === 0 || value === 1 || value === 7) stateY = "low";  // Up
+    if (value === 3 || value === 4 || value === 5) stateY = "high"; // Down
+    if (value === 5 || value === 6 || value === 7) stateX = "low";  // Left
+    if (value === 1 || value === 2 || value === 3) stateX = "high"; // Right
+
+    processDpadAxis('dpad_x', stateX, 'dx');
+    processDpadAxis('dpad_y', stateY, 'dy');
+}
+
+function processDpadAxis(axisName, currentState, stateKey) {
+    if (currentState !== lastAxisState[stateKey]) {
+        const axisConfig = config.axis_mappings[axisName];
+        if (currentState !== "neutral" && axisConfig) {
+            const msg = axisConfig[currentState];
+            if (msg) console.log(`>>> ${msg}`);
+        }
+        lastAxisState[stateKey] = currentState;
+    }
+}
 
 // We ensure stateKey is unique for every axis to prevent "crosstalk"
 function handleAxis(axisName, value, stateKey) {
