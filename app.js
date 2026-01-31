@@ -12,17 +12,45 @@ let lastAxisState = { lx: "neutral", ly: "neutral", rx: "neutral", ry: "neutral"
 const DEADZONE = 50;
 const CENTER = 128;
 
+// Add this helper function at the bottom of your app.js
+function vibrate(hidDevice) {
+    console.log("Sending connection rumble...");
+
+    // The DualShock 3 vibration packet (standard HID output report)
+    // Byte 3 is the right (small) motor (0 or 1)
+    // Byte 5 is the left (large) motor (0 to 255)
+    const report = Buffer.alloc(32);
+    report[0] = 0x01; // Report ID
+    report[2] = 0x00;
+    report[3] = 0x01; // Small motor on
+    report[4] = 0x00;
+    report[5] = 0xff; // Large motor at max power
+    report[6] = 0x00;
+    
+    try {
+        // Send the rumble
+        hidDevice.write(report);
+
+        // Turn it off after 500ms
+        setTimeout(() => {
+            const stopReport = Buffer.alloc(32);
+            stopReport[0] = 0x01;
+            hidDevice.write(stopReport);
+        }, 500);
+    } catch (err) {
+        console.log("Vibration not supported on this specific device/mode.");
+    }
+}
+
 /**
  * Main function to find and connect to the controller
  */
 function connect() {
     console.log("Searching for controller...");
-    
     const devices = HID.devices();
     const controllerInfo = devices.find(d => d.vendorId === 1133 || d.vendorId === 1356);
 
     if (!controllerInfo) {
-        // No controller found, wait 3 seconds and try again
         setTimeout(connect, 3000);
         return;
     }
@@ -31,23 +59,15 @@ function connect() {
         device = new HID.HID(controllerInfo.path);
         console.log(`Connected to: ${controllerInfo.product}`);
 
-        // Handle incoming data
+        // Trigger the vibration on connection
+        vibrate(device);
+
         device.on("data", handleData);
-
-        // Handle disconnection/errors
-        device.on("error", (err) => {
-            console.log("Controller disconnected or error occurred.");
-            cleanupAndReconnect();
-        });
-
-        device.on("end", () => {
-            console.log("Device stream ended.");
-            cleanupAndReconnect();
-        });
-
+        device.on("error", () => cleanupAndReconnect());
+        device.on("end", () => cleanupAndReconnect());
     } catch (err) {
         console.error("Could not open device:", err.message);
-        setTimeout(connect, 3000);
+        setTimeout(connect, 1000);
     }
 }
 
