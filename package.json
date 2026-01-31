@@ -8,7 +8,7 @@
     "install": "node-gyp rebuild"
   },
   "dependencies": {
-    "gamepad": "^1.6.4"
+    "gamepad": "^1.6.0"
   },
   "author": "wrcrooks",
   "license": "MIT",
