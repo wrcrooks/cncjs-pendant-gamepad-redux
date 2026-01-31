@@ -1,41 +1,54 @@
 const HID = require('node-hid');
 const fs = require('fs');
 
-// 1. Load Config
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-
 const devices = HID.devices();
 const controllerInfo = devices.find(d => d.vendorId === 1133 || d.vendorId === 1356);
 
-if (!controllerInfo) {
-    console.log("No controller found.");
-    process.exit();
-}
-
+if (!controllerInfo) { process.exit(); }
 const device = new HID.HID(controllerInfo.path);
 
-// 2. State Tracking
-// This variable remembers what was pressed in the last 'tick'
+// State tracking
 let lastButtonValue = 0;
+let lastAxisState = { x: "neutral", y: "neutral" };
 
-console.log(`Listening for inputs on ${controllerInfo.product}...`);
+const DEADZONE = 50; // Ignore small movements near the center (128)
+const CENTER = 128;
+
+console.log("Listening for Buttons and Axes...");
 
 device.on("data", (data) => {
-    // We are looking at Byte 3 based on your test
+    // --- 1. BUTTON LOGIC (Byte 3 based on your previous test) ---
     const currentButtonValue = data[3]; 
-
-    // 3. Logic: Only trigger if the value CHANGED and is not 0 (released)
     if (currentButtonValue !== lastButtonValue) {
         if (currentButtonValue !== 0) {
-            const mapping = config.mappings[currentButtonValue.toString()];
-            
-            if (mapping) {
-                console.log(`>>> OUTPUT: ${mapping}`);
-            } else {
-                console.log(`New Button ID detected: ${currentButtonValue}`);
-            }
+            const msg = config.mappings[currentButtonValue.toString()];
+            if (msg) console.log(`>>> ${msg}`);
         }
-        // Update the state so we don't repeat the message
         lastButtonValue = currentButtonValue;
     }
+
+    // --- 2. AXIS LOGIC (Example: Left Stick X = Byte 0, Y = Byte 1) ---
+    // Note: You might need to experiment to see which byte is which stick!
+    const rawX = data[0];
+    const rawY = data[1];
+
+    handleAxis('left_stick_x', rawX, 'x');
+    handleAxis('left_stick_y', rawY, 'y');
 });
+
+function handleAxis(axisName, value, stateKey) {
+    let currentState = "neutral";
+
+    if (value < (CENTER - DEADZONE)) currentState = "low";
+    else if (value > (CENTER + DEADZONE)) currentState = "high";
+
+    // Only trigger on state change (e.g., neutral -> high)
+    if (currentState !== lastAxisState[stateKey]) {
+        if (currentState !== "neutral") {
+            const msg = config.axis_mappings[axisName][currentState];
+            if (msg) console.log(`>>> AXIS: ${msg}`);
+        }
+        lastAxisState[stateKey] = currentState;
+    }
+}

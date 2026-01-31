@@ -1,8 +1,26 @@
 {
   "mappings": {
+    "0": "Square / X Button Pressed",
     "1": "X / A Button Pressed",
     "2": "Circle / B Button Pressed",
-    "4": "Square / X Button Pressed",
-    "8": "Triangle / Y Button Pressed"
+    "3": "Triangle / Y Button Pressed",
+    "4": "L1",
+    "5": "R1",
+    "6": "L2",
+    "7": "R2",
+    "8": "Back",
+    "9": "Start",
+    "10": "Left Joystick Button",
+    "11": "Right Joystick Button"
+  },
+  "axis_mappings": {
+    "left_stick_x": {
+      "low": "Moving Left",
+      "high": "Moving Right"
+    },
+    "left_stick_y": {
+      "low": "Moving Up",
+      "high": "Moving Down"
+    }
   }
 }
