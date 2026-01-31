@@ -119,7 +119,5 @@ function processAxisEvent(axisName, currentState, stateKey) {
     }
 }
 
-device.on("error", (err) => console.error("HID Error:", err));
-
 // Start the initial connection attempt
 connect();
