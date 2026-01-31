@@ -26,31 +26,26 @@ const IDLE_OFFSET = 8;
 console.log(`Mapping ${controllerInfo.product} indices...`);
 
 device.on("data", (data) => {
-    // --- AXIS LOGIC ---
-    handleAxis('left_stick_x', data[3], 'x');
-    handleAxis('left_stick_y', data[4], 'y');
-
-    // --- BUTTON LOGIC ---
+    // --- 1. AXIS LOGIC ---
     
-    // 1. Combine data[5] and data[6] into a single 16-bit integer
-    // We use (data[6] << 8) to put the second byte "above" the first byte
-    let combinedButtons = data[5] | (data[6] << 8);
+    // Left Joystick (likely bytes 1 and 2)
+    handleAxis('left_stick_x', data[1], 'lx');
+    handleAxis('left_stick_y', data[2], 'ly');
 
-    // 2. Clear the Idle Offset (8) and Shift by 4 to align Square to 0
-    // We use a bitwise mask to ensure the D-Pad bits (the first 4) don't interfere
+    // Right Joystick (the ones you confirmed working on 3 and 4)
+    handleAxis('right_stick_x', data[3], 'rx');
+    handleAxis('right_stick_y', data[4], 'ry');
+
+    // --- 2. BUTTON LOGIC ---
+    let combinedButtons = data[5] | (data[6] << 8);
     let normalizedButtons = (combinedButtons - IDLE_OFFSET) >> 4;
 
-    // 3. Loop through all 12 potential buttons in your JSON
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
 
         if (isPressed && !buttonStates[i]) {
             const msg = config.mappings[i.toString()];
-            if (msg) {
-                console.log(`>>> BUTTON ${i}: ${msg}`);
-            } else {
-                console.log(`>>> BUTTON ${i} pressed (No mapping)`);
-            }
+            if (msg) console.log(`>>> BUTTON ${i}: ${msg}`);
             buttonStates[i] = true;
         } 
         else if (!isPressed && buttonStates[i]) {
@@ -59,15 +54,18 @@ device.on("data", (data) => {
     }
 });
 
+// Updated helper to track multiple sticks independently
 function handleAxis(axisName, value, stateKey) {
     let currentState = "neutral";
     if (value < (CENTER - DEADZONE)) currentState = "low";
     else if (value > (CENTER + DEADZONE)) currentState = "high";
 
     if (currentState !== lastAxisState[stateKey]) {
-        if (currentState !== "neutral") {
-            const msg = config.axis_mappings[axisName][currentState];
-            if (msg) console.log(`>>> AXIS: ${msg}`);
+        // Look for mapping in config.axis_mappings
+        const axisConfig = config.axis_mappings[axisName];
+        if (currentState !== "neutral" && axisConfig) {
+            const msg = axisConfig[currentState];
+            if (msg) console.log(`>>> AXIS ${axisName}: ${msg}`);
         }
         lastAxisState[stateKey] = currentState;
     }

@@ -14,13 +14,9 @@
     "11": "Right Joystick Button"
   },
   "axis_mappings": {
-    "left_stick_x": {
-      "low": "Moving Left",
-      "high": "Moving Right"
-    },
-    "left_stick_y": {
-      "low": "Moving Up",
-      "high": "Moving Down"
-    }
+    "left_stick_x": { "low": "L-Stick Left", "high": "L-Stick Right" },
+    "left_stick_y": { "low": "L-Stick Up", "high": "L-Stick Down" },
+    "right_stick_x": { "low": "R-Stick Left", "high": "R-Stick Right" },
+    "right_stick_y": { "low": "R-Stick Up", "high": "R-Stick Down" }
   }
 }
