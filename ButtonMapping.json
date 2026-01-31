@@ -1,0 +1,24 @@
+{
+  "mappings": {
+    "0": "KEYCODE_BUTTON_X",
+    "1": "KEYCODE_BUTTON_A",
+    "2": "KEYCODE_BUTTON_B",
+    "3": "KEYCODE_BUTTON_Y",
+    "4": "KEYCODE_BUTTON_L1",
+    "5": "KEYCODE_BUTTON_R1",
+    "6": "KEYCODE_BUTTON_L2",
+    "7": "KEYCODE_BUTTON_R2",
+    "8": "KEYCODE_BUTTON_BACK",
+    "9": "KEYCODE_BUTTON_START",
+    "10": "KEYCODE_BUTTON_LJS",
+    "11": "KEYCODE_BUTTON_RJS"
+  },
+  "axis_mappings": {
+    "left_stick_x": { "low": "AXIS_LEFT_X_MINUS", "high": "AXIS_LEFT_X_PLUS" },
+    "left_stick_y": { "low": "AXIS_LEFT_Y_MINUS", "high": "AXIS_LEFT_Y_PLUS" },
+    "right_stick_x": { "low": "AXIS_RIGHT_X_MINUS", "high": "AXIS_RIGHT_X_PLUS" },
+    "right_stick_y": { "low": "AXIS_RIGHT_Y_MINUS", "high": "AXIS_RIGHT_Y_PLUS" },
+    "dpad_x": { "low": "AXIS_HAT_X_MINUS", "high": "AXIS_HAT_X_PLUS" },
+    "dpad_y": { "low": "AXIS_HAT_Y_MINUS", "high": "AXIS_HAT_Y_PLUS" }
+  }
+}

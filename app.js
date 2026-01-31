@@ -1,8 +1,9 @@
 const HID = require('node-hid');
 const fs = require('fs');
 
-// 1. Load Config
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+// 1. Load Mappings
+const buttonMapping = JSON.parse(fs.readFileSync('ButtonMapping.json', 'utf8'));
+const actionMapping = JSON.parse(fs.readFileSync('ActionMapping.json', 'utf8'));
 
 // State Management
 let device = null;
@@ -11,35 +12,6 @@ let lastAxisState = { lx: "neutral", ly: "neutral", rx: "neutral", ry: "neutral"
 
 const DEADZONE = 50;
 const CENTER = 128;
-
-function vibrate(hidDevice) {
-    console.log("Sending connection rumble...");
-
-    // The DualShock 3 vibration packet (standard HID output report)
-    // Byte 3 is the right (small) motor (0 or 1)
-    // Byte 5 is the left (large) motor (0 to 255)
-    const report = Buffer.alloc(32);
-    report[0] = 0x01; // Report ID
-    report[2] = 0x00;
-    report[3] = 0x01; // Small motor on
-    report[4] = 0x00;
-    report[5] = 0xff; // Large motor at max power
-    report[6] = 0x00;
-    
-    try {
-        // Send the rumble
-        hidDevice.write(report);
-
-        // Turn it off after 500ms
-        setTimeout(() => {
-            const stopReport = Buffer.alloc(32);
-            stopReport[0] = 0x01;
-            hidDevice.write(stopReport);
-        }, 500);
-    } catch (err) {
-        console.log("Vibration not supported on this specific device/mode.");
-    }
-}
 
 /**
  * Main function to find and connect to the controller
@@ -57,9 +29,6 @@ function connect() {
     try {
         device = new HID.HID(controllerInfo.path);
         console.log(`Connected to: ${controllerInfo.product}`);
-
-        // Trigger the vibration on connection
-        vibrate(device);
 
         device.on("data", handleData);
         device.on("error", () => cleanupAndReconnect());
@@ -98,7 +67,7 @@ function handleData(data) {
     for (let i = 0; i <= 11; i++) {
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
         if (isPressed && !buttonStates[i]) {
-            const msg = config.mappings[i.toString()];
+            const msg = buttonMapping.mappings[i.toString()];
             if (msg) console.log(`>>> ${msg}`);
             buttonStates[i] = true;
         } else if (!isPressed && buttonStates[i]) {
@@ -130,7 +99,7 @@ function handleAxis(axisName, value, stateKey) {
 
 function processAxisEvent(axisName, currentState, stateKey) {
     if (currentState !== lastAxisState[stateKey]) {
-        const axisConfig = config.axis_mappings[axisName];
+        const axisConfig = buttonMapping.axis_mappings[axisName];
         if (currentState !== "neutral" && axisConfig && axisConfig[currentState]) {
             console.log(`>>> ${axisConfig[currentState]}`);
         }
