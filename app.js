@@ -1,6 +1,7 @@
 const HID = require('node-hid');
 const fs = require('fs');
 const io = require('socket.io-client');
+const jwt = require('jsonwebtoken');
 
 const argv = require('yargs/yargs')(process.argv.slice(2))
     .option('url', {
@@ -11,14 +12,30 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .option('port', {
         alias: 'p',
         description: 'Serial Port (e.g., /dev/ttyUSB0 or COM3)',
-        default: '/dev/ttyACM0',
+        default: '/dev/ttyACM0'
+    })
+    .option('secret', {
+        alias: 's',
+        description: 'CNCJS Secret (Found in ~/.cncrc)',
         demandOption: true
     })
     .help()
     .argv;
 
+const payload = {
+    id: 'admin',
+    name: 'admin',
+    role: 'admin'
+};
+
 console.log(`>>> URL : ${argv.url}`);
-const socket = io.connect(argv.url);
+const token = jwt.sign(payload, argv.secret, { expiresIn: '30d' });
+
+console.log(`Generated Token: ${token}`);
+
+const socket = io(argv.url, {
+    query: { token: token }
+});
 
 // 1. Load Mappings
 const buttonMapping = JSON.parse(fs.readFileSync('ButtonMapping.json', 'utf8'));
