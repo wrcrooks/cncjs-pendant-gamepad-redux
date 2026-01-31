@@ -6,7 +6,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .option('url', {
         alias: 'u',
         description: 'CNCjs Server URL',
-        default: 'http://localhost:80'
+        default: 'http://localhost'
     })
     .option('port', {
         alias: 'p',
