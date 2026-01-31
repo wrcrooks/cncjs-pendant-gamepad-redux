@@ -30,13 +30,18 @@ device.on("data", (data) => {
     handleAxis('left_stick_x', data[3], 'x');
     handleAxis('left_stick_y', data[4], 'y');
 
-    // --- BUTTON LOGIC WITH SHIFTING ---
-    // 1. Remove the D-Pad idle value (8)
-    // 2. Shift Right by 4 (>> 4) to move bit 4 into the 0 position
-    const normalizedButtons = (data[5] - IDLE_OFFSET) >> 4;
+    // --- BUTTON LOGIC ---
+    
+    // 1. Combine data[5] and data[6] into a single 16-bit integer
+    // We use (data[6] << 8) to put the second byte "above" the first byte
+    let combinedButtons = data[5] | (data[6] << 8);
 
+    // 2. Clear the Idle Offset (8) and Shift by 4 to align Square to 0
+    // We use a bitwise mask to ensure the D-Pad bits (the first 4) don't interfere
+    let normalizedButtons = (combinedButtons - IDLE_OFFSET) >> 4;
+
+    // 3. Loop through all 12 potential buttons in your JSON
     for (let i = 0; i <= 11; i++) {
-        // Check if the i-th bit is set after the shift
         const isPressed = (normalizedButtons & (1 << i)) !== 0;
 
         if (isPressed && !buttonStates[i]) {
@@ -44,7 +49,7 @@ device.on("data", (data) => {
             if (msg) {
                 console.log(`>>> BUTTON ${i}: ${msg}`);
             } else {
-                console.log(`>>> BUTTON ${i} pressed (No mapping in JSON)`);
+                console.log(`>>> BUTTON ${i} pressed (No mapping)`);
             }
             buttonStates[i] = true;
         } 
