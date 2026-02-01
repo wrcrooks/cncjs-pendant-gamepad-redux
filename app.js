@@ -53,6 +53,41 @@ socket = io.connect(argv.url, {
     }
 });
 
+socket.on('connect', () => {
+    console.log("HERE");
+    console.log(`Connected to ${argv.url}`);
+    socket.emit('open', argv.port, {
+        baudrate: 115200,
+        controllerType: 'Grbl'
+    });
+    // Start the initial connection attempt
+    connect();
+});
+
+socket.on('error', (err) => {
+    console.error('Connection error.');
+    if (socket) {
+        socket.destroy();
+        socket = null;
+    }
+});
+
+socket.on('close', () => {
+    console.log('Connection closed.');
+});
+
+socket.on('serialport:open', function(argv) {
+    options = argv || {};
+
+    console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
+
+    callback(null, socket);
+});
+
+socket.on('serialport:error', function(argv) {
+    callback(new Error('Error opening serial port "' + argv.port + '"'));
+});
+
 // 1. Load Mappings
 const buttonMapping = JSON.parse(fs.readFileSync('ButtonMapping.json', 'utf8'));
 const actionMapping = JSON.parse(fs.readFileSync('ActionMapping.json', 'utf8'));
@@ -181,38 +216,3 @@ process.on('SIGINT', () => {
     process.exit(0); // Manually exit the process
 });
 // -------------------------------
-
-socket.on('connect', () => {
-    console.log("HERE");
-    console.log(`Connected to ${argv.url}`);
-    socket.emit('open', argv.port, {
-        baudrate: 115200,
-        controllerType: 'Grbl'
-    });
-    // Start the initial connection attempt
-    connect();
-});
-
-socket.on('error', (err) => {
-    console.error('Connection error.');
-    if (socket) {
-        socket.destroy();
-        socket = null;
-    }
-});
-
-socket.on('close', () => {
-    console.log('Connection closed.');
-});
-
-socket.on('serialport:open', function(argv) {
-    options = argv || {};
-
-    console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
-
-    callback(null, socket);
-});
-
-socket.on('serialport:error', function(argv) {
-    callback(new Error('Error opening serial port "' + argv.port + '"'));
-});
