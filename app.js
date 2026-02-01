@@ -160,7 +160,20 @@ function handleData(data) {
                 console.log(`>>> ${button} : ${action}`);
                 switch (action) {
                     case "performHoming":
-                        socket.emit('write', argv.port, '$H\n');
+                        // socket.emit('write', argv.port, '$H\n');
+                        socket.emit('command', argv.port, 'homing');
+                        break;
+                    case "programStart":
+                        socket.emit('command', argv.port, 'start');
+                        break;
+                    case "controllerReset":
+                        socket.emit('command', argv.port, 'reset');
+                        break;
+                    case "spindleOff":
+                        socket.emit('command', argv.port, 'gcode', 'M5');
+                        break;
+                    case "spindleOn":
+                        socket.emit('command', argv.port, 'gcode', 'M3 S13000');
                         break;
                 }
             }

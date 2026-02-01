@@ -1,15 +1,15 @@
 {
   "mappings": {
     "KEYCODE_BUTTON_X": null,
-    "KEYCODE_BUTTON_A": null,
+    "KEYCODE_BUTTON_A": "spindleOn",
     "KEYCODE_BUTTON_B": null,
     "KEYCODE_BUTTON_Y": null,
     "KEYCODE_BUTTON_L1": null,
     "KEYCODE_BUTTON_R1": null,
     "KEYCODE_BUTTON_L2": null,
     "KEYCODE_BUTTON_R2": null,
-    "KEYCODE_BUTTON_BACK": null,
-    "KEYCODE_BUTTON_START": "performHoming",
+    "KEYCODE_BUTTON_BACK": "performHoming",
+    "KEYCODE_BUTTON_START": "controllerReset",
     "KEYCODE_BUTTON_LJS": null,
     "KEYCODE_BUTTON_RJS": null,
     "AXIS_LEFT_X_MINUS": null,
