@@ -79,11 +79,12 @@ socket.on('serialport:open', function(argv) {
 
     console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
 
-    callback(null, socket);
+    // callback(null, socket);
 });
 
 socket.on('serialport:error', function(argv) {
-    callback(new Error('Error opening serial port "' + argv.port + '"'));
+    console.log('Error opening serial port "' + argv.port + '"');
+    // callback(new Error('Error opening serial port "' + argv.port + '"'));
 });
 
 // 1. Load Mappings
