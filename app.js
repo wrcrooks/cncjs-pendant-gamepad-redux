@@ -48,9 +48,7 @@ const token = jwt.sign(payload, argv.secret, { expiresIn: '30d' });
 console.log(`Generated Token: ${token}`);
 
 socket = io.connect(argv.url, {
-    auth: {
-        token: token
-    }
+    'query': 'token=' + token
 });
 
 socket.on('connect', () => {
