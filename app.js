@@ -65,7 +65,7 @@ socket.on('connect', () => {
 });
 
 socket.on('error', (err) => {
-    console.error(`Connection error: ${err}`);
+    console.error(`Connection error: ${err.message}`);
     if (socket) {
         socket.destroy();
         socket = null;
