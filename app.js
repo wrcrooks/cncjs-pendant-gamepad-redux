@@ -3,7 +3,7 @@ const fs = require('fs');
 const io = require('socket.io-client');
 const jwt = require('jsonwebtoken');
 
-const argv = require('yargs/yargs')(process.argv.slice(2))
+const argv = require('yargs/yargs')(process.argv.slice(3))
     .option('url', {
         alias: 'u',
         description: 'CNCjs Server URL',
