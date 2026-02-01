@@ -218,6 +218,7 @@ process.on('SIGINT', () => {
     
     if (socket.connected) {
         socket.disconnect();
+        socket.destroy();
         console.log('Socket disconnected.');
     }
     
