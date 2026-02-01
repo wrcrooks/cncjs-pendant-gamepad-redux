@@ -223,6 +223,6 @@ process.on('SIGINT', () => {
     
     console.log('Clearing all timeouts');
     clearAllTimeouts();
-    process.exit(0); // Manually exit the process
+    process.exit(1); // Manually exit the process
 });
 // -------------------------------
