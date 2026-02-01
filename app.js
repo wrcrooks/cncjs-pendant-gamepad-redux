@@ -48,7 +48,9 @@ const token = jwt.sign(payload, argv.secret, { expiresIn: '30d' });
 console.log(`Generated Token: ${token}`);
 
 socket = io.connect(argv.url, {
-    'query': 'token=' + token
+    'query': {
+        'token': token
+    }
 });
 
 // 1. Load Mappings
@@ -184,9 +186,9 @@ socket.on('connect', () => {
     console.log("HERE");
     console.log(`Connected to ${argv.url}`);
     socket.emit('open', argv.port, {
-          baudrate: 115200,
-          controllerType: 'Grbl'
-      });
+        baudrate: 115200,
+        controllerType: 'Grbl'
+    });
     // Start the initial connection attempt
     connect();
 });
@@ -203,14 +205,14 @@ socket.on('close', () => {
     console.log('Connection closed.');
 });
 
-socket.on('serialport:open', function(options) {
-    options = options || {};
+socket.on('serialport:open', function(argv) {
+    options = argv || {};
 
     console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
 
     callback(null, socket);
 });
 
-socket.on('serialport:error', function(options) {
-    callback(new Error('Error opening serial port "' + options.port + '"'));
+socket.on('serialport:error', function(argv) {
+    callback(new Error('Error opening serial port "' + argv.port + '"'));
 });
