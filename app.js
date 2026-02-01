@@ -24,8 +24,8 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
 
 const payload = { id: '', name: 'cncjs-pendant' };
 const activeTimeouts = [];
-const stepSizes = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0];
-const selectedStep = 4;
+stepSizes = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0];
+selectedStep = 4;
 
 //#region Functions
 const getUserHome = function() {
