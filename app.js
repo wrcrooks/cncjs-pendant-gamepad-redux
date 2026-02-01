@@ -24,6 +24,8 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
 
 const payload = { id: '', name: 'cncjs-pendant' };
 const activeTimeouts = [];
+const stepSizes = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0];
+const selectedStep = 4;
 
 //#region Functions
 const getUserHome = function() {
@@ -174,6 +176,30 @@ function handleData(data) {
                         break;
                     case "spindleOn":
                         socket.emit('command', argv.port, 'gcode', 'M3 S13000');
+                        break;
+                    case "toolChange":
+                        socket.emit('command', argv.port, 'gcode', 'T0M6');
+                        break;
+                    case "zeroWCS":
+                        socket.emit('command', argv.port, 'gcode', 'G10 L2 P1 X0 Y0 Z0');
+                        break;
+                    case "moveToZeroWCS":
+                        socket.emit('command', argv.port, 'gcode', 'G53 G0 G90 Z0');
+                        socket.emit('command', argv.port, 'gcode', 'G54 G0 G90 X0 Y0 Z0');
+                        break;
+                    case "decreaseStep":
+                        selectedStep -= 1;
+                        if (selectedStep < 0) {
+                            selectedStep = stepSizes.length() - 1;
+                        }
+                        console.log(`>>> STEP SIZE: ${stepSizes[selectedStep]}`);
+                        break;
+                    case "increaseStep":
+                        selectedStep += 1;
+                        if (selectedStep >= stepSizes.length()) {
+                            selectedStep = 0;
+                        }
+                        console.log(`>>> STEP SIZE: ${stepSizes[selectedStep]}`);
                         break;
                 }
             }
