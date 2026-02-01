@@ -23,6 +23,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     .argv;
 
 const payload = { id: '', name: 'cncjs-pendant' };
+const activeTimeouts = [];
 
 //#region Functions
 const getUserHome = function() {
@@ -108,7 +109,7 @@ function connect() {
     const controllerInfo = devices.find(d => d.vendorId === 1133 || d.vendorId === 1356);
 
     if (!controllerInfo) {
-        setTimeout(connect, 3000);
+        activeTimeouts.push(setTimeout(connect, 3000));
         return;
     }
 
@@ -121,7 +122,7 @@ function connect() {
         device.on("end", () => cleanupAndReconnect());
     } catch (err) {
         console.error("Could not open device:", err.message);
-        setTimeout(connect, 1000);
+        activeTimeouts.push(setTimeout(connect, 1000));
     }
 }
 
@@ -132,7 +133,7 @@ function cleanupAndReconnect() {
     }
     // Reset states so buttons don't stay "stuck" in the app memory
     buttonStates = {};
-    setTimeout(connect, 3000);
+    activeTimeouts.push(setTimeout(connect, 3000));
 }
 
 function handleData(data) {
