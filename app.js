@@ -30,8 +30,6 @@ const getUserHome = function() {
 };
 //#endregion
 
-//generateAccessToken({ id: '', name: 'cncjs-pendant-gamepad-redux' }, this.options.secret, this.options.accessTokenLifetime);
-
 if (!argv.secret) {
     const cncrc = path.resolve(getUserHome(), '.cncrc');
     try {
@@ -49,7 +47,7 @@ const token = jwt.sign(payload, argv.secret, { expiresIn: '30d' });
 
 console.log(`Generated Token: ${token}`);
 
-const socket = io.connect(argv.url, {
+socket = io.connect(argv.url, {
     'query': 'token=' + token
 });
 
@@ -187,7 +185,7 @@ socket.on('connect', () => {
     console.log(`Connected to ${argv.url}`);
     socket.emit('open', argv.port, {
           baudrate: 115200,
-          controllerType: 'grbl'
+          controllerType: 'Grbl'
       });
     // Start the initial connection attempt
     connect();
