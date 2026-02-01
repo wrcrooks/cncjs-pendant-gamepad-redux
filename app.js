@@ -17,8 +17,7 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
     })
     .option('secret', {
         alias: 's',
-        description: 'CNCJS Secret (Found in ~/.cncrc)',
-        demandOption: true
+        description: 'CNCJS Secret (Found in ~/.cncrc)'
     })
     .help()
     .argv;
