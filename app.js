@@ -190,13 +190,13 @@ function handleData(data) {
                     case "decreaseStep":
                         selectedStep -= 1;
                         if (selectedStep < 0) {
-                            selectedStep = stepSizes.length() - 1;
+                            selectedStep = stepSizes.length - 1;
                         }
                         console.log(`>>> STEP SIZE: ${stepSizes[selectedStep]}`);
                         break;
                     case "increaseStep":
                         selectedStep += 1;
-                        if (selectedStep >= stepSizes.length()) {
+                        if (selectedStep >= stepSizes.length) {
                             selectedStep = 0;
                         }
                         console.log(`>>> STEP SIZE: ${stepSizes[selectedStep]}`);
