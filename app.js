@@ -203,6 +203,14 @@ function processAxisEvent(axisName, currentState, stateKey) {
     }
 }
 
+function clearAllTimeouts() {
+  activeTimeouts.forEach(id => {
+    clearTimeout(id);
+  });
+  activeTimeouts.length = 0; // Clear the array after cancelling
+  console.log('All timeouts cleared.');
+}
+
 // --- Graceful Shutdown Logic ---
 process.on('SIGINT', () => {
     console.log('\nGracefully shutting down...');
@@ -212,7 +220,8 @@ process.on('SIGINT', () => {
         console.log('Socket disconnected.');
     }
     
+    console.log('Clearing all timeouts');
+    clearAllTimeouts();
     process.exit(0); // Manually exit the process
-    process.kill(process.pid, 'SIGTERM');
 });
 // -------------------------------
