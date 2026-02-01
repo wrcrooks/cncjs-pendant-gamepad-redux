@@ -201,6 +201,26 @@ function handleData(data) {
                         }
                         console.log(`>>> STEP SIZE: ${stepSizes[selectedStep]}`);
                         break;
+                    case "moveXMinus":
+                        socket.emit('command', argv.port, 'gcode', 'G21');
+                        socket.emit('command', argv.port, 'gcode', `G91 G0 X-${stepSizes[selectedStep]}`);
+                        socket.emit('command', argv.port, 'gcode', 'G90');
+                        break;
+                    case "moveXPlus":
+                        socket.emit('command', argv.port, 'gcode', 'G21');
+                        socket.emit('command', argv.port, 'gcode', `G91 G0 X${stepSizes[selectedStep]}`);
+                        socket.emit('command', argv.port, 'gcode', 'G90');
+                        break;
+                    case "moveYMinus":
+                        socket.emit('command', argv.port, 'gcode', 'G21');
+                        socket.emit('command', argv.port, 'gcode', `G91 G0 Y-${stepSizes[selectedStep]}`);
+                        socket.emit('command', argv.port, 'gcode', 'G90');
+                        break;
+                    case "moveYPlus":
+                        socket.emit('command', argv.port, 'gcode', 'G21');
+                        socket.emit('command', argv.port, 'gcode', `G91 G0 Y${stepSizes[selectedStep]}`);
+                        socket.emit('command', argv.port, 'gcode', 'G90');
+                        break;
                 }
             }
             buttonStates[i] = true;
