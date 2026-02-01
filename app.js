@@ -24,6 +24,12 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
 
 const payload = { id: '', name: 'cncjs-pendant' };
 
+//#region Functions
+const getUserHome = function() {
+    return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
+};
+//#endregion
+
 //generateAccessToken({ id: '', name: 'cncjs-pendant-gamepad-redux' }, this.options.secret, this.options.accessTokenLifetime);
 
 if (!argv.secret) {
