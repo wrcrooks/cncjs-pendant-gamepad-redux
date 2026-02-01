@@ -192,3 +192,27 @@ socket.on('connect', () => {
     // Start the initial connection attempt
     connect();
 });
+
+socket.on('error', (err) => {
+    console.error('Connection error.');
+    if (socket) {
+        socket.destroy();
+        socket = null;
+    }
+});
+
+socket.on('close', () => {
+    console.log('Connection closed.');
+});
+
+socket.on('serialport:open', function(options) {
+    options = options || {};
+
+    console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
+
+    callback(null, socket);
+});
+
+socket.on('serialport:error', function(options) {
+    callback(new Error('Error opening serial port "' + options.port + '"'));
+});
