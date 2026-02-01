@@ -259,6 +259,16 @@ function processAxisEvent(axisName, currentState, stateKey) {
                     socket.emit('command', argv.port, 'gcode', `G91 G0 Y${stepSizes[selectedStep]}`);
                     socket.emit('command', argv.port, 'gcode', 'G90');
                     break;
+                case "moveZMinus":
+                    socket.emit('command', argv.port, 'gcode', 'G21');
+                    socket.emit('command', argv.port, 'gcode', `G91 G0 Z-${stepSizes[selectedStep]}`);
+                    socket.emit('command', argv.port, 'gcode', 'G90');
+                    break;
+                case "moveZPlus":
+                    socket.emit('command', argv.port, 'gcode', 'G21');
+                    socket.emit('command', argv.port, 'gcode', `G91 G0 Z${stepSizes[selectedStep]}`);
+                    socket.emit('command', argv.port, 'gcode', 'G90');
+                    break;
             }
         }
         lastAxisState[stateKey] = currentState;
