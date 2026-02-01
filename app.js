@@ -213,5 +213,6 @@ process.on('SIGINT', () => {
     }
     
     process.exit(0); // Manually exit the process
+    process.kill(process.pid, 'SIGTERM');
 });
 // -------------------------------
